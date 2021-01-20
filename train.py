@@ -23,8 +23,8 @@ from torch import optim
 #loss = nn.MSELoss()
 
 def exoskeleton_ae_network():
-    encoder_arch = [[6,14],[14,28],[28,28],[28,6]]
-    decoder_arch = [[12,24],[24,28],[28,28],[28,7]]
+    encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
+    decoder_arch = [[14,24],[24,28],[28,28],[28,7]]
     
     encoder = network.ExoskeletonAENet(encoder_arch)
     decoder = network.ExoskeletonAENet(decoder_arch)    
@@ -104,6 +104,7 @@ def train_separately(train_dataset, val_dataset, test_dataset):
     
     batch_size = 500
     num_batches = n_examples // batch_size
+    f = open("loss.txt","w+")    
 
     for i in range(5000):
         cost_le = 0.
@@ -117,6 +118,8 @@ def train_separately(train_dataset, val_dataset, test_dataset):
             
         print("Epoch = {epoch}, cost_le = {le}, cost_ld = {ld}".format(
         epoch = i+1, le = cost_le / num_batches,ld = cost_ld / num_batches))
+        
+        f.write("%f      %f  \n"%(cost_le, cost_ld))
 #        print ("Epoch %d, cost_le = %f, cost_ld = %f", i + 1, 
 #               cost_le / num_batches, cost_ld / num_batches,)
 #        predY = predict(model, val_dataset)
@@ -127,8 +130,8 @@ def train_separately(train_dataset, val_dataset, test_dataset):
     torch.save(decoder.state_dict(), './decoder')
 
 def train_wholenet(train_dataset, val_dataset, test_dataset):
-    encoder_arch = [[6,14],[14,28],[28,28],[28,6]]
-    decoder_arch = [[12,24],[24,28],[28,28],[28,7]]
+    encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
+    decoder_arch = [[14,24],[24,28],[28,28],[28,7]]
     loss = nn.MSELoss()
     
     n_examples = len(train_dataset)  
@@ -138,6 +141,7 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
     
     batch_size = 500
     num_batches = n_examples // batch_size
+
     
     for i in range(5000):
         cost = 0.
@@ -145,6 +149,8 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
             start, end = k * batch_size, (k + 1) * batch_size
             cost += train(model, loss, optimizer, train_dataset[start: end])
         print("Epoch = {epoch}, cost = {le}".format(epoch = i+1, le = cost / num_batches))
+        
+        
         #predY = predict(model, val_dataset)
         #print("Epoch %d, cost = %f, acc = %.2f%%"
         #      % (i + 1, cost / num_batches, 100. * np.mean(predY == teY)))
@@ -154,7 +160,7 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
 
 def main():
     dataset = exoskeleton_dataset.ExoskeletonDataset(
-            file="data/exoskeleton_data",root_dir="/")    
+            file="data/exoskeleton_data_new",root_dir="/")    
     train_dataset, val_dataset, test_dataset = dataset.GetDataset()
     
     train_separately(train_dataset, val_dataset, test_dataset)    

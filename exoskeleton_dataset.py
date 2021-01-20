@@ -67,7 +67,7 @@ class ExoskeletonDataset(Dataset):
                         #tmp = " ".join(elem.split())
                         #tmp = [item.strip() for item in tmp.split(' ')]
                         tmp = elem.split()
-                        tmp = [float(x)/math.pi for x in tmp]
+                        tmp = [float(x) for x in tmp]
 #                        tmp = [np.sin(float(x)) for x in tmp]
                         d[columns[index]] = tmp#/math.pi
 #                        d[columns[index]] = tmp            
@@ -96,11 +96,9 @@ class ToTensor(object):
 
     def __call__(self, sample):
         master = sample['master']
-        slave = sample['slave']
         constrains = sample['constrains']
         target = sample['target']
         return {'master': torch.Tensor(np.array(master)),
-                'slave': torch.Tensor(np.array(slave)),
                 'constrains': torch.Tensor(np.array(constrains)),
                 'target': torch.Tensor(np.array(target))}
             

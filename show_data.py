@@ -9,7 +9,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-file = 'data/exoskeleton_data'
+file = 'data/exoskeleton_data_new'
 exo_data = [];
 with open(file) as f:
     lines = f.readlines() # list containing lines of file
@@ -35,23 +35,19 @@ with open(file) as f:
 #plt.plot(exo_data)
 
 master = []
-slave = []
+
 constrains = []
 target = []
             
 for item in exo_data:
     master.append(item["master"])
-    slave.append(item["slave"])
     constrains.append(item["constrains"])
     target.append(item["target"])
     
 master_data = np.array(master)
-slave_data = np.array(slave)
 constrains_data = np.array(constrains)
 target_data = np.array(target)
 plt.plot(master_data)
-plt.figure()
-plt.plot(slave_data)
 plt.figure()
 plt.plot(constrains_data)
 plt.figure()
