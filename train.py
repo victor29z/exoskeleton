@@ -13,15 +13,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
 
-
-#encoder_arch = [[6,14],[14,28],[28,28],[28,6]]
-#decoder_arch = [[12,14],[14,28],[28,28],[28,7]]
-#net = network.Net(encoder_arch,decoder_arch)
-#dataset = exoskeleton_dataset.ExoskeletonDataset(file="data/exoskeleton_data",root_dir="./")
-#sample_d = dataset[0]
-#optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-#loss = nn.MSELoss()
-
 def exoskeleton_ae_network():
     encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
     decoder_arch = [[14,24],[24,28],[28,28],[28,7]]

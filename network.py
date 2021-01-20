@@ -57,10 +57,6 @@ class ExoskeletonAENet(nn.Module):
             modules.append(torch.nn.Linear(encoder_arch[i][0],encoder_arch[i][1]))
             modules.append(torch.nn.ReLU())
         modules.append(torch.nn.Linear(encoder_arch[-1][0],encoder_arch[-1][1]))
-#        for item in encoder_arch:
-#            modules.append(torch.nn.Linear(item[0],item[1]))
-#            modules.append(torch.nn.ReLU())
-#        modules.append(torch.nn.Linear(item[1],6))
         modules.append(torch.nn.Tanh())
         self.net = nn.Sequential(*modules)     
         
