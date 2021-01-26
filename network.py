@@ -37,13 +37,14 @@ class Net(nn.Module):
         decoder = nn.Sequential(*modules) 
         return decoder
     
-    def forward(self,x):
+    def forward(self,x,s):
         y = self.encoder.forward(x)
         tmp = torch.cat((x,y),0)
+        tmp = torch.cat((tmp,s),0)
         z = self.decoder.forward(tmp)        
         return y,z
     
-    def forward(self,x,c):
+    def forward_s(self,x,c):
         y = self.encoder.forward(x)
         tmp = torch.cat((x,c),0)
         z = self.decoder.forward(tmp)        

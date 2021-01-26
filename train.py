@@ -14,8 +14,8 @@ import torch.nn.functional as F
 from torch import optim
 
 def exoskeleton_ae_network():
-    encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
-    decoder_arch = [[14,24],[24,28],[28,28],[28,7]]
+    encoder_arch = [[14,28],[28,56],[56,56],[56,7]]
+    decoder_arch = [[21,42],[42,84],[84,84],[84,7]]
     
     encoder = network.ExoskeletonAENet(encoder_arch)
     decoder = network.ExoskeletonAENet(decoder_arch)    
@@ -70,9 +70,11 @@ def train(model, loss, optimizer, train_dataset):
         constrains = torch.cat((constrains, tmp), 1)
         tmp = tensor_data["master"].unsqueeze(dim=1)
         master = torch.cat((master, tmp), 1)
+        tmp = tensor_data["slave"].unsqueeze(dim=1)
+        master = torch.cat((slave, tmp), 1)
     
     optimizer.zero_grad()
-    x = model.forward(torch.transpose(target,0,1))
+    x = model.forward(torch.transpose(target,0,1),torch.transpose(slave,0,1))
     l = loss.forward(x,torch.transpose(master,0,1))
     
     l.backward()
@@ -121,8 +123,8 @@ def train_separately(train_dataset, val_dataset, test_dataset):
     torch.save(decoder.net.state_dict(), "decoder.model")
 
 def train_wholenet(train_dataset, val_dataset, test_dataset):
-    encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
-    decoder_arch = [[14,24],[24,28],[28,28],[28,7]]
+    encoder_arch = [[14,28],[28,56],[56,56],[56,7]]
+    decoder_arch = [[21,42],[42,84],[84,84],[84,7]]
     loss = nn.MSELoss()
     
     n_examples = len(train_dataset)  

@@ -98,7 +98,9 @@ class ToTensor(object):
         master = sample['master']
         constrains = sample['constrains']
         target = sample['target']
+        slave = sample['slave']
         return {'master': torch.Tensor(np.array(master)),
                 'constrains': torch.Tensor(np.array(constrains)),
+                'slave': torch.Tensor(np.array(slave)),
                 'target': torch.Tensor(np.array(target))}
             
