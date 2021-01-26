@@ -117,8 +117,8 @@ def train_separately(train_dataset, val_dataset, test_dataset):
 #        print("Epoch %d, cost = %f, acc = %.2f%%"
 #              % (i + 1, cost / num_batches, 100. * np.mean(predY == teY)))
 
-    torch.save(encoder.state_dict(), './encoder')
-    torch.save(decoder.state_dict(), './decoder')
+    torch.save(encoder.net.state_dict(), "encoder.model")
+    torch.save(decoder.net.state_dict(), "decoder.model")
 
 def train_wholenet(train_dataset, val_dataset, test_dataset):
     encoder_arch = [[7,14],[14,28],[28,28],[28,7]]
@@ -127,6 +127,9 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
     
     n_examples = len(train_dataset)  
     model = network.Net(encoder_arch, decoder_arch)
+    
+    model.decoder.load_state_dict(torch.load("decoder.model"))
+    model.encoder.load_state_dict(torch.load("encoder.model"))
     
     optimizer = optim.SGD(model.parameters(), lr = 0.01, momentum = 0.9)
     
