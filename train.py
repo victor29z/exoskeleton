@@ -14,8 +14,8 @@ import torch.nn.functional as F
 from torch import optim
 
 def exoskeleton_ae_network():
-    encoder_arch = [[14,28],[28,56],[56,56],[56,7]]
-    decoder_arch = [[21,42],[42,84],[84,84],[84,7]]
+    encoder_arch = [[14, 28], [28, 56], [56, 56], [56, 4]]
+    decoder_arch = [[18, 36], [36, 72], [72, 72], [72, 7]]
     
     encoder = network.ExoskeletonAENet(encoder_arch)
     decoder = network.ExoskeletonAENet(decoder_arch)    
@@ -26,6 +26,7 @@ def train_s(encoder, decoder, loss_en, loss_de, optimizer_en,
     target = torch.Tensor()
     constrains = torch.Tensor()
     master = torch.Tensor()
+    slave = torch.Tensor()
         
     tt = exoskeleton_dataset.ToTensor()
     
@@ -37,12 +38,15 @@ def train_s(encoder, decoder, loss_en, loss_de, optimizer_en,
         constrains = torch.cat((constrains, tmp), 1)
         tmp = tensor_data["master"].unsqueeze(dim=1)
         master = torch.cat((master, tmp), 1)
+        tmp = tensor_data["slave"].unsqueeze(dim=1)
+        slave = torch.cat((slave, tmp), 1)
     
     optimizer_en.zero_grad()
     optimizer_de.zero_grad()
 
-    x = encoder.forward(torch.transpose(target,0,1))
-    tmp = torch.cat((target,constrains),0)
+    tmp = torch.cat((slave, target), 0)
+    x = encoder.forward(torch.transpose(tmp,0,1))
+    tmp = torch.cat((tmp,constrains),0)
     y = decoder.forward(torch.transpose(tmp,0,1))
     
     le = loss_en.forward(torch.transpose(x,0,1), constrains)
@@ -59,7 +63,7 @@ def train(model, loss, optimizer, train_dataset):
     target = torch.Tensor()
     constrains = torch.Tensor()
     master = torch.Tensor()
-        
+    slave = torch.Tensor()
     tt = exoskeleton_dataset.ToTensor()
     
     for item in train_dataset:        
@@ -71,11 +75,11 @@ def train(model, loss, optimizer, train_dataset):
         tmp = tensor_data["master"].unsqueeze(dim=1)
         master = torch.cat((master, tmp), 1)
         tmp = tensor_data["slave"].unsqueeze(dim=1)
-        master = torch.cat((slave, tmp), 1)
+        slave = torch.cat((slave, tmp), 1)
     
     optimizer.zero_grad()
-    x = model.forward(torch.transpose(target,0,1),torch.transpose(slave,0,1))
-    l = loss.forward(x,torch.transpose(master,0,1))
+    y,z = model.forward(torch.transpose(target,0,1),torch.transpose(slave,0,1))
+    l = loss.forward(z,torch.transpose(master,0,1))
     
     l.backward()
     optimizer.step()
@@ -99,7 +103,7 @@ def train_separately(train_dataset, val_dataset, test_dataset):
     num_batches = n_examples // batch_size
     f = open("loss.txt","w+")    
 
-    for i in range(5000):
+    for i in range(2000):
         cost_le = 0.
         cost_ld = 0.
         for k in range(num_batches):
@@ -123,8 +127,8 @@ def train_separately(train_dataset, val_dataset, test_dataset):
     torch.save(decoder.net.state_dict(), "decoder.model")
 
 def train_wholenet(train_dataset, val_dataset, test_dataset):
-    encoder_arch = [[14,28],[28,56],[56,56],[56,7]]
-    decoder_arch = [[21,42],[42,84],[84,84],[84,7]]
+    encoder_arch = [[14,28],[28,56],[56,56],[56,4]]
+    decoder_arch = [[18,36],[36,72],[72,72],[72,7]]
     loss = nn.MSELoss()
     
     n_examples = len(train_dataset)  
@@ -139,7 +143,7 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
     num_batches = n_examples // batch_size
 
     
-    for i in range(5000):
+    for i in range(2000):
         cost = 0.
         for k in range(num_batches):
             start, end = k * batch_size, (k + 1) * batch_size
@@ -156,10 +160,10 @@ def train_wholenet(train_dataset, val_dataset, test_dataset):
 
 def main():
     dataset = exoskeleton_dataset.ExoskeletonDataset(
-            file="data/exoskeleton_data_new",root_dir="/")    
+            file="data/exo_data_3",root_dir="/")
     train_dataset, val_dataset, test_dataset = dataset.GetDataset()
     
-    train_separately(train_dataset, val_dataset, test_dataset)    
+    train_separately(train_dataset, val_dataset, test_dataset)
     print("Separate network train done! Begin whole network training...")
     
     train_wholenet(train_dataset, val_dataset, test_dataset)

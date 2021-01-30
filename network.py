@@ -38,10 +38,14 @@ class Net(nn.Module):
         return decoder
     
     def forward(self,x,s):
-        y = self.encoder.forward(x)
-        tmp = torch.cat((x,y),0)
-        tmp = torch.cat((tmp,s),0)
+        #concatenate slave and target
+        tmp = torch.cat((s,x),1)
+        y = self.encoder.forward(tmp)
+        #concatenate slave, target, constraint sequentially
+        tmp = torch.cat((tmp,y),1)
+        #tmp = torch.cat((tmp,s),0)
         z = self.decoder.forward(tmp)        
+        #return constraint and master
         return y,z
     
     def forward_s(self,x,c):

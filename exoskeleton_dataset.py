@@ -56,7 +56,7 @@ class ExoskeletonDataset(Dataset):
         with open(file) as f:
             lines = f.readlines() # list containing lines of file
             
-            columns = ['index', 'target','constrains', 'master','slave']
+            columns = ['index', 'target','master', 'constrains','slave']
             for line in lines:
                 line = line.strip() # remove leading/trailing white spaces
                 if line:
@@ -101,6 +101,6 @@ class ToTensor(object):
         slave = sample['slave']
         return {'master': torch.Tensor(np.array(master)),
                 'constrains': torch.Tensor(np.array(constrains)),
-                'slave': torch.Tensor(np.array(slave)),
-                'target': torch.Tensor(np.array(target))}
+                'target': torch.Tensor(np.array(target)),
+                'slave': torch.Tensor(np.array(target))}
             
